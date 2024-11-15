@@ -1,34 +1,12 @@
 ---
-# Source: bluesky-pds/templates/pvc.yaml
-kind: PersistentVolumeClaim
-apiVersion: v1
-metadata:
-  name: "bluesky-pds-data"
-  labels:
-    helm.sh/chart: bluesky-pds-0.1.1
-    app.kubernetes.io/name: bluesky-pds
-    app.kubernetes.io/instance: bluesky-pds
-    app.kubernetes.io/version: "0.4.59"
-    app.kubernetes.io/managed-by: Helm
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 10Gi
-  storageClassName:
----
 # Source: bluesky-pds/templates/service.yaml
 apiVersion: v1
 kind: Service
 metadata:
   name: bluesky-pds
   labels:
-    helm.sh/chart: bluesky-pds-0.1.1
     app.kubernetes.io/name: bluesky-pds
     app.kubernetes.io/instance: bluesky-pds
-    app.kubernetes.io/version: "0.4.59"
-    app.kubernetes.io/managed-by: Helm
 spec:
   type: ClusterIP
   ports:
@@ -46,11 +24,8 @@ kind: Deployment
 metadata:
   name: bluesky-pds
   labels:
-    helm.sh/chart: bluesky-pds-0.1.1
     app.kubernetes.io/name: bluesky-pds
     app.kubernetes.io/instance: bluesky-pds
-    app.kubernetes.io/version: "0.4.59"
-    app.kubernetes.io/managed-by: Helm
 spec:
   strategy:
     type: Recreate
@@ -76,7 +51,7 @@ spec:
           imagePullPolicy: IfNotPresent
           env:
             - name: PDS_HOSTNAME
-              value: pds.sindt.org
+              value: pds.bluesky.sindt.org
             - name: PDS_JWT_SECRET
               valueFrom:
                 secretKeyRef:
@@ -129,8 +104,9 @@ spec:
             {}
       volumes:
         - name: data
-          persistentVolumeClaim:
-            claimName: "bluesky-pds-data"
+          hostPath:
+            path: /ssd/k3s/bluesky/pds
+            type: Directory
 ---
 # Source: bluesky-pds/templates/ingress.yaml
 apiVersion: networking.k8s.io/v1
@@ -138,19 +114,16 @@ kind: Ingress
 metadata:
   name: bluesky-pds
   labels:
-    helm.sh/chart: bluesky-pds-0.1.1
     app.kubernetes.io/name: bluesky-pds
     app.kubernetes.io/instance: bluesky-pds
-    app.kubernetes.io/version: "0.4.59"
-    app.kubernetes.io/managed-by: Helm
 spec:
   ingressClassName: traefik
   tls:
     - hosts:
-        - "pds.sindt.org"
-      secretName: pds-sindt-org-tls
+        - "pds.bluesky.sindt.org"
+      secretName: pds-bluesky-sindt-org-tls
   rules:
-    - host: "pds.sway.org"
+    - host: "pds.bluesky.sindt.org"
       http:
         paths:
           - path: /
@@ -160,24 +133,3 @@ spec:
                 name: bluesky-pds
                 port:
                   number: 3000
----
-# Source: bluesky-pds/templates/tests/test-connection.yaml
-apiVersion: v1
-kind: Pod
-metadata:
-  name: "bluesky-pds-test-connection"
-  labels:
-    helm.sh/chart: bluesky-pds-0.1.1
-    app.kubernetes.io/name: bluesky-pds
-    app.kubernetes.io/instance: bluesky-pds
-    app.kubernetes.io/version: "0.4.59"
-    app.kubernetes.io/managed-by: Helm
-  annotations:
-    "helm.sh/hook": test
-spec:
-  containers:
-    - name: wget
-      image: busybox
-      command: ['wget']
-      args: ['bluesky-pds:3000']
-  restartPolicy: Never
