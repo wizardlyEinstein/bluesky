@@ -67,6 +67,16 @@ spec:
                 secretKeyRef:
                   name: secrets
                   key: plcRotationKey
+            - name: PDS_EMAIL_SMTP_URL 
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: smtp 
+            - name: PDS_EMAIL_FROM_ADDRESS 
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: email 
             - name: PDS_DATA_DIRECTORY
               value: "/pds"
             - name: PDS_BLOBSTORE_DISK_LOCATION
