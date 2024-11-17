@@ -113,6 +113,8 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: bluesky-pds
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
   labels:
     app.kubernetes.io/name: bluesky-pds
     app.kubernetes.io/instance: bluesky-pds
