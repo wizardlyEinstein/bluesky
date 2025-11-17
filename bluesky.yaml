@@ -115,7 +115,7 @@ spec:
       volumes:
         - name: data
           hostPath:
-            path: /ssd/k3s/bluesky/pds
+            path: /hdd/k3s/bluesky/pds
             type: Directory
 ---
 # Source: bluesky-pds/templates/ingress.yaml
